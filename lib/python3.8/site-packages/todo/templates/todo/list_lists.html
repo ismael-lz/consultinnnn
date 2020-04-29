@@ -1,0 +1,75 @@
+{% extends "todo/base_site.html" %}
+
+{% load i18n static %}
+{% block page_heading %}{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static 'todo/css/dashboard.css' %}">{% endblock %} 
+{% load i18n %}
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content %}   
+<div id="content-main">
+    <div id="content">
+      <p>{{ task_count }} tâches personnelles parmi {{ list_count }} listes de tâche{{ list_count|pluralize }}</p>
+    </div>
+      {% regroup lists by group as section_list %}
+      
+      {% for group in section_list %}
+      <div class="module">
+        <table>
+          <caption>
+            <h3>Group: {{ group.grouper }}</h3>
+          </caption>
+          
+              {% for task in group.list %}
+              <tr>
+                <th scope="row">
+                  <a href="{% url 'todo:list_detail' task.id task.slug %}">{{ task.name }}</a>
+                </th>
+                <th scope="row">
+                  <span class="badge badge-primary badge-pill">{{ task.task_set.count }}</span>
+                </th>
+              </tr>
+              {% endfor %}
+            
+        </table>
+      </div>
+      {% endfor %}
+    
+      
+    
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% trans 'Actions récentes' %}</h2>
+        <h3>{% trans 'Mes actions' %}</h3>
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% trans 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br>
+                {% if entry.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% trans 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,9 @@
+{% extends "todo/base.html" %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('TodoList site') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'todo:lists' %}">{{ site_header|default:_('Consultimm TodoList') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
